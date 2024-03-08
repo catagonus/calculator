@@ -1,5 +1,3 @@
-const output = document.querySelector('#output');
-
 function add(a, b) {
     return +a + +b;
 }
@@ -15,10 +13,6 @@ function multiply(a, b) {
 function divide(a, b) {
     return a / b;
 }
-
-let firstOperand;
-let secondOperand;
-let operator;
 
 function operate(firstOperand, operator, secondOperand) {
     switch(operator) {
@@ -37,33 +31,76 @@ function operate(firstOperand, operator, secondOperand) {
     }
 }
 
-let memoryValue = '';
-let resultValue = '';
+let memory = {
+    firstOperand: '',
+    operator: '',
+    secondOperand: '',
+    result: '',
+};
 
 const numbers = document.querySelectorAll('.number');
 const operators = document.querySelectorAll('.operator');
+const buttons = document.querySelectorAll('button');
 
 const memoryDisplay = document.querySelector('#memory');
 const displayResult = document.querySelector('#result');
 
 numbers.forEach(button => {
     button.addEventListener('click', e => {
-        memoryValue += e.target.textContent;
-        memoryDisplay.textContent = memoryValue;
+        
+        if (memory.firstOperand == '') {
+            memory.firstOperand = e.target.textContent;
+            memoryDisplay.textContent = e.target.textContent;
+        } else if (memory.operator !== '') {
+            if (memory.secondOperand == '') {
+                memory.secondOperand = e.target.textContent;
+                memoryDisplay.textContent += ' ' + e.target.textContent;
+            } else {
+                if (e.target.id == 'point') {
+                    if (memory.secondOperand.includes('.')) {
+                        return;
+                    }
+                }
+                memory.secondOperand += e.target.textContent;
+                memoryDisplay.textContent += e.target.textContent;
+            } 
+        } else {
+            if (e.target.id == 'point') {
+                if (memory.firstOperand.includes('.')) {
+                    return;
+                }
+            }
+            memory.firstOperand += e.target.textContent;
+            memoryDisplay.textContent += e.target.textContent;
+        }
     });
 });
 
-let operatorsCount = 0;
+const decimalPoint = document.querySelector('#point');
 
 operators.forEach(button => {
     button.addEventListener('click', e => {
-        operatorsCount++;
-        if ( operatorsCount > 1 ) {
-            calculateResult();
+        if (memory.operator == '') {
+            memory.operator = e.target.textContent;
+            // memoryDisplay.textContent += ' ' + e.target.textContent;
+            updateDisplay();
+        } else {
+            memory.result = operate(memory.firstOperand, memory.operator, memory.secondOperand);
+            memory.firstOperand = memory.result;
+            memory.operator = e.target.textContent;
+            memory.secondOperand = '';
+            // memoryDisplay.textContent = tempOp + ' ' + memory.operator;
+            // displayResult.textContent = tempOp;
+            updateDisplay();
         }
-        memoryValue += ' ' + e.target.textContent + ' ';
-        memoryDisplay.textContent = memoryValue;
     });
+});
+
+const equalButton = document.querySelector('#equals');
+
+equalButton.addEventListener('click', () => {
+    memory.result = operate(memory.firstOperand, memory.operator, memory.secondOperand);
+    updateDisplay();
 });
 
 const clearButton = document.querySelector('#clear');
@@ -71,29 +108,53 @@ const clearButton = document.querySelector('#clear');
 clearButton.addEventListener('click', () => {
     memoryDisplay.textContent = '';
     displayResult.textContent = '';
-    memoryValue = '';
-    operatorsCount = 0;
+    memory.firstOperand = '';
+    memory.operator = '';
+    memory.secondOperand = '';
+    memory.result = '';
 });
 
-const equalButton = document.querySelector('#equals');
+const changeSign = document.querySelector('#changeSign');
 
-equalButton.addEventListener('click', calculateResult);
+changeSign.addEventListener('click', () => {
+    if (memory.firstOperand == '') {
+        memory.firstOperand = '-';
+        memoryDisplay.textContent = '-';
+    } else if (memory.operator == '') {
+        if (memory.firstOperand[0] == '-') {
+            memory.firstOperand = memory.firstOperand.slice(1);
+        } else {
+            const tempMem1 = memory.firstOperand;
+            memory.firstOperand = +tempMem1 * -1;
+            memoryDisplay.textContent = memory.firstOperand;
+        }
+    } else {
+        if (memory.result == '') {
+            const tempMem2 = memory.secondOperand;
+            memory.secondOperand = +tempMem2 * -1;
+            console.log(memory);
+            const tempMem = memoryDisplay.textContent;
+            console.log(tempMem);
+            console.log(tempMem.substring(0, 5));
+            console.log(tempMem2.length)
+            memoryDisplay.textContent = tempMem.substring(0, tempMem.length - tempMem2.length) + memory.secondOperand;
+            console.log(memory);
+        } else {
+            
+            memory.operator = '';
+            memory.secondOperand = '';
+            memory.result *= -1;
+            memory.firstOperand = memory.result;
+            updateDisplay();
+        }
+        
+    }
+});
 
-function calculateResult() {
-    const memoryArray = memoryValue.toString().split(' ');
-    console.log(memoryArray);
-    memoryValue = operate(memoryArray[0], memoryArray[1], memoryArray[2]);
-    resultValue = memoryValue;
-    displayResult.textContent = resultValue;
-    operatorsCount = 0;
+function updateDisplay() {
+    memoryDisplay.textContent = 
+        memory.firstOperand + ' ' +
+        memory.operator + ' ' +
+        memory.secondOperand;
+    displayResult.textContent = memory.result;
 }
-
-const signChangeButton = document.querySelector('#changeSign');
-
-signChangeButton.addEventListener('click', () => {
-    const memoryArray = memoryValue.toString().split(' ');
-    memoryArray[memoryArray.length-1] *= -1;
-    memoryValue = memoryArray.join(' ');
-});
-
-
