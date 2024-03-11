@@ -62,7 +62,7 @@ numbers.forEach(button => {
             memory.result = '';
             memory.equalReset = 'off';
             updateDisplay();
-        }
+        } 
         if (memory.firstOperand.length + memory.secondOperand.length >= 28) {
             memoryDisplay.textContent = 'ERROR - memory exceeded';
         } else if (memory.firstOperand == '') {
@@ -72,12 +72,6 @@ numbers.forEach(button => {
             if (memory.secondOperand == '') {
                 memory.secondOperand = e.target.textContent;
                 updateDisplay(); 
-            // } else if (memory.result !== '') {
-            //     // memory.firstOperand = e.target.textContent;
-            //     // memory.operator = '';
-            //     // memory.secondOperand = '';
-            //     // memory.result = '';
-            //     // updateDisplay();
             } else {
                 if (e.target.id == 'point') {
                     if (memory.secondOperand.includes('.')) {
@@ -108,17 +102,13 @@ operators.forEach(button => {
             return;
         } else if (memory.operator == '') {
             memory.operator = e.target.textContent;
-            // memoryDisplay.textContent += ' ' + e.target.textContent;
-            updateDisplay();
         } else {
             memory.result = operate(memory.firstOperand, memory.operator, memory.secondOperand);
             memory.firstOperand = memory.result;
             memory.operator = e.target.textContent;
             memory.secondOperand = '';
-            // memoryDisplay.textContent = tempOp + ' ' + memory.operator;
-            // displayResult.textContent = tempOp;
-            updateDisplay();
         }
+        updateDisplay();
     });
 });
 
@@ -175,6 +165,21 @@ changeSign.addEventListener('click', () => {
         }
         
     }
+});
+
+const backspace = document.querySelector('#backspace');
+
+backspace.addEventListener('click', () => {
+    if (memory.secondOperand == '') {
+        if (memory.operator != '') {
+            memory.operator = '';
+        } else if (memory.firstOperand != '') {
+            memory.firstOperand = memory.firstOperand.slice(0, memory.firstOperand.toString().length -1);
+        }
+    } else {
+        memory.secondOperand = memory.secondOperand.slice(0, memory.secondOperand.toString().length -1);
+    }
+    updateDisplay();
 });
 
 function updateDisplay() {
