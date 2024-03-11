@@ -7,11 +7,19 @@ function subtract(a, b) {
 }
 
 function multiply(a, b) {
-    return a * b;
+    if ( (a*b).toString().length > 15 ) {
+        memoryDisplay.textContent = 'ERROR - memory exceeded';
+    } else { 
+        return a * b;
+    }
 }
 
 function divide(a, b) {
-    return a / b;
+    if ((a/b).toString().length > 15) {
+        return (a/b).toFixed(13);
+    } else {
+        return (a / b);
+    }
 }
 
 function operate(firstOperand, operator, secondOperand) {
@@ -36,25 +44,40 @@ let memory = {
     operator: '',
     secondOperand: '',
     result: '',
+    equalReset: 'off',
 };
 
 const numbers = document.querySelectorAll('.number');
 const operators = document.querySelectorAll('.operator');
-const buttons = document.querySelectorAll('button');
 
 const memoryDisplay = document.querySelector('#memory');
 const displayResult = document.querySelector('#result');
 
 numbers.forEach(button => {
     button.addEventListener('click', e => {
-        
-        if (memory.firstOperand == '') {
+        if (memory.equalReset == 'on') {
+            memory.firstOperand = '';
+            memory.operator = '';
+            memory.secondOperand = '';
+            memory.result = '';
+            memory.equalReset = 'off';
+            updateDisplay();
+        }
+        if (memory.firstOperand.length + memory.secondOperand.length >= 28) {
+            memoryDisplay.textContent = 'ERROR - memory exceeded';
+        } else if (memory.firstOperand == '') {
             memory.firstOperand = e.target.textContent;
-            memoryDisplay.textContent = e.target.textContent;
+            updateDisplay();
         } else if (memory.operator !== '') {
             if (memory.secondOperand == '') {
                 memory.secondOperand = e.target.textContent;
-                memoryDisplay.textContent += ' ' + e.target.textContent;
+                updateDisplay(); 
+            // } else if (memory.result !== '') {
+            //     // memory.firstOperand = e.target.textContent;
+            //     // memory.operator = '';
+            //     // memory.secondOperand = '';
+            //     // memory.result = '';
+            //     // updateDisplay();
             } else {
                 if (e.target.id == 'point') {
                     if (memory.secondOperand.includes('.')) {
@@ -62,7 +85,7 @@ numbers.forEach(button => {
                     }
                 }
                 memory.secondOperand += e.target.textContent;
-                memoryDisplay.textContent += e.target.textContent;
+                updateDisplay();
             } 
         } else {
             if (e.target.id == 'point') {
@@ -71,7 +94,7 @@ numbers.forEach(button => {
                 }
             }
             memory.firstOperand += e.target.textContent;
-            memoryDisplay.textContent += e.target.textContent;
+            updateDisplay();
         }
     });
 });
@@ -80,7 +103,10 @@ const decimalPoint = document.querySelector('#point');
 
 operators.forEach(button => {
     button.addEventListener('click', e => {
-        if (memory.operator == '') {
+        memory.equalReset = 'off';
+        if (memory.firstOperand == '') {
+            return;
+        } else if (memory.operator == '') {
             memory.operator = e.target.textContent;
             // memoryDisplay.textContent += ' ' + e.target.textContent;
             updateDisplay();
@@ -101,6 +127,7 @@ const equalButton = document.querySelector('#equals');
 equalButton.addEventListener('click', () => {
     memory.result = operate(memory.firstOperand, memory.operator, memory.secondOperand);
     updateDisplay();
+    memory.equalReset = 'on';
 });
 
 const clearButton = document.querySelector('#clear');
@@ -140,11 +167,10 @@ changeSign.addEventListener('click', () => {
             memoryDisplay.textContent = tempMem.substring(0, tempMem.length - tempMem2.length) + memory.secondOperand;
             console.log(memory);
         } else {
-            
+            memory.firstOperand = memory.result * -1;
             memory.operator = '';
             memory.secondOperand = '';
-            memory.result *= -1;
-            memory.firstOperand = memory.result;
+            memory.result ='';
             updateDisplay();
         }
         
