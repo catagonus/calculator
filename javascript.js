@@ -178,7 +178,7 @@ backspace.addEventListener('click', () => {
         }
     } else {
         memory.secondOperand = memory.secondOperand.slice(0, memory.secondOperand.toString().length -1);
-    }
+    } 
     updateDisplay();
 });
 
